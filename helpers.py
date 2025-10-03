@@ -1,40 +1,71 @@
-import os
 import json
-import urllib
-import subprocess
-from playwright.async_api import async_playwright, Page, Playwright
+import urllib.parse
 
-capabilities = {
-    "browserName": "Chrome",
-    "browserVersion": "latest",
-    "LT:Options": {
-        "platform": "Windows 10",
-        "build": "Playwright Python Build",
-        'user': 'surajsahu124',
-        'accessKey': 'JYvphyRIMkzZI44wLeVZB3PHOSKcP7oqdkFYSQccX8YLShY6vx',
-        "network": True,
-        "video": True,
-        "console": True,
-        "tunnel": False,
-        "tunnelName": "",
-        "geoLocation": "",
-    },
-}
+LT_USERNAME = ''
+LT_ACCESS_KEY = ''
 
-async def set_test_status(page: Page, status: str, remark: str):
-    action_dict = {
-        "action": "setTestStatus",
-        "arguments": {"status": status, "remark": remark},
+
+async def set_test_status(page, status, remark):
+    script = (
+        'lambdatest_action: '
+        + json.dumps({
+            "action": "setTestStatus",
+            "arguments": {"status": status, "remark": remark}
+        })
+    )
+    await page.evaluate("_ => {}", script)
+
+
+async def get_lambdatest_browser(
+    playwright,
+    test_name="Playwright Test",
+    browser_name="pw-chromium",
+    browser_version="latest",
+    platform="Windows 10"
+):
+    """
+    Launch a browser on LambdaTest via Playwright WebSocket connection.
+    Supports:
+      - Windows 10 Chrome (pw-chromium)
+      - Windows 10 Edge (MicrosoftEdge)
+      - macOS Firefox (pw-firefox)
+    """
+
+    browser_name_lower = browser_name.lower()
+    if browser_name_lower == "pw-chromium":
+        lt_browser_name = "pw-chromium"
+        engine = playwright.chromium
+    elif browser_name_lower == "pw-firefox":
+        lt_browser_name = "pw-firefox"
+        engine = playwright.firefox
+    elif browser_name_lower == "microsoftedge":
+        lt_browser_name = "MicrosoftEdge"
+        engine = playwright.chromium  # Edge runs on Chromium engine
+    else:
+        raise ValueError(f"Unsupported browser: {browser_name}")
+
+    capabilities = {
+        "browserName": lt_browser_name,
+        "browserVersion": browser_version,
+        "LT:Options": {
+            "platform": platform,
+            "build": "Playwright Python Parallel Build",
+            "name": test_name,
+            "user": LT_USERNAME,
+            "accessKey": LT_ACCESS_KEY,
+            "network": True,
+            "video": True,
+            "console": True,
+        }
     }
-    await page.evaluate("_ => {}", json.dumps({"lambdatest_action": action_dict}))
 
-async def get_lambdatest_browser(playwright: Playwright, test_name: str):
-    # Set Playwright version and test name
-    playwright_version = str(subprocess.getoutput("playwright --version")).strip().split(" ")[1]
-    capabilities["LT:Options"]["playwrightClientVersion"] = playwright_version
-    capabilities["LT:Options"]["name"] = test_name
+    caps_encoded = urllib.parse.quote(json.dumps(capabilities))
+    ws_endpoint = f"wss://cdp.lambdatest.com/playwright?capabilities={caps_encoded}"
 
-    lt_cdp_url = "wss://cdp.lambdatest.com/playwright?capabilities=" + urllib.parse.quote(json.dumps(capabilities))
-    browser = await playwright.chromium.connect(lt_cdp_url, timeout=120000)
-    page = await browser.new_page()
+    browser = await engine.connect(ws_endpoint, timeout=60000)
+    context = await browser.new_context(
+    viewport={"width": 1920, "height": 1080}
+)
+    page = await context.new_page()
+
     return browser, page
