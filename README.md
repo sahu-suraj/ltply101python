@@ -14,7 +14,7 @@ All tests are written in **async Playwright Python** and can be executed directl
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/yourusername/yourrepo)
 
-> Replace `yourusername/yourrepo` with your GitHub repository URL.
+
 
 ---
 
