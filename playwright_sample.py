@@ -12,8 +12,8 @@ capabilities = {
         'platform': 'Windows 10',
         'build': 'Playwright Python Build',
         'name': 'Playwright Test',
-        'user': os.getenv('LT_USERNAME'),
-        'accessKey': os.getenv('LT_ACCESS_KEY'),
+        'user': 'surajsahu124',
+        'accessKey': 'JYvphyRIMkzZI44wLeVZB3PHOSKcP7oqdkFYSQccX8YLShY6vx',
         'network': True,
         'video': True,
         'console': True,
@@ -22,7 +22,6 @@ capabilities = {
         'geoLocation': '', # country code can be fetched from https://www.lambdatest.com/capabilities-generator/
     }
 }
-
 
 def run(playwright):
     playwrightVersion = str(subprocess.getoutput('playwright --version')).strip().split(" ")[1]
@@ -33,25 +32,38 @@ def run(playwright):
     browser = playwright.chromium.connect(lt_cdp_url, timeout=120000)
     page = browser.new_page()
     try:
-        page.goto("https://duckduckgo.com")
-        page.fill("[name='q']", "LambdaTest")
-        page.wait_for_timeout(1000)
-        page.keyboard.press("Enter")
-        page.wait_for_timeout(1000)
 
-        title = page.title()
+        # 2. Open Selenium Playground
+        page.goto("https://www.lambdatest.com/selenium-playground")
 
-        print("Title:: ", title)
+            # 3. Click "Drag & Drop Sliders"
+        page.click("text=Drag & Drop Sliders")
 
-        if "LambdaTest" in title:
-            set_test_status(page, "passed", "Title matched")
-        else:
-            set_test_status(page, "failed", "Title did not match")
+            # 4. Locate the slider with default value 15
+        slider = page.locator("input[type='range'][value='15']")
+
+            # 5. Drag slider → set to 95
+        slider.fill("95")   # set directly if input is type=range
+
+            # 6. Validate the value shows 95
+        value_box = page.locator("#rangeSuccess")   # value is shown here
+        expect(value_box).to_have_text("95")
+
+        print("✅ Test Passed: Slider successfully moved to 95")
     except Exception as err:
         print("Error:: ", err)
         set_test_status(page, "failed", str(err))
+    finally:
+        page.wait_for_timeout(2000)  # let LT log final status
+        try:
+            page.close()
+        except Exception:
+            pass
+        try:
+            browser.close()
+        except Exception:
+            pass
 
-    browser.close()
 
 
 def set_test_status(page, status, remark):

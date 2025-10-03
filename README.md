@@ -1,10 +1,26 @@
-# Testing Playwright in Python on LambdaTest
+# LambdaTest Playwright Python Tests
 
-## Setup
-* Clone the repo. Run `cd playwright-python`
-* Install Playwright Dependency `pip3 install playwright==1.39.0` [Assuming For Python3]
+This repository contains **three separate Playwright Python tests** running on **LambdaTest cloud**:
 
-## Running your tests
-- ```python3 get_test_details_python_sample.py```
-- ```python3 playwright_sample_on_iphone.py```
-- ```python3 playwright_sample.py```
+1. **Simple Form Demo** → `test_simple_form.py`  
+2. **Slider Demo** → `test_slider.py`  
+3. **Input Form Submit** → `test_input_form.py`  
+
+All tests are written in **async Playwright Python** and can be executed directly from **Gitpod**.
+
+---
+
+## **Open in Gitpod**
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/yourusername/yourrepo)
+
+> Replace `yourusername/yourrepo` with your GitHub repository URL.
+
+---
+
+## **1️⃣ Prerequisites**
+
+- A **LambdaTest account**.  
+- **Gitpod account** (or access via Gitpod URL).  
+- **LambdaTest credentials**:
+

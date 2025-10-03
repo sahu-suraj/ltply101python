@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environments
+venv312/
+
+# Gitpod or editor folders
+.gitpod/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
